@@ -1,6 +1,3 @@
-// this block must be first
-#include "core/common.h"
-
 #include "core/gl/glmesh.h"
 #include "core/gl/glshader.h"
 #include "core/gl/gltexture.h"

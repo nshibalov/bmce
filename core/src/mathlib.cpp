@@ -1,12 +1,18 @@
 #include "core/mathlib.h"
+#include "core/constants.h"
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
 
 
-#define EPS 0.000001
+namespace
+{
 
+
+const float kEPS = 0.000001;
+
+
+}
 
 namespace bmce
 {
@@ -61,7 +67,7 @@ void Mat4::init(
 
 Mat4 Mat4::Perspective(FPType fovy, FPType aspect, FPType znear, FPType zfar)
 {
-    FPType halfa = fovy * static_cast<float>(M_PI) / 360;
+    FPType halfa = fovy * static_cast<float>(kPI) / 360;
     FPType F = 1 / tan(halfa);
     FPType E = F / aspect;
     FPType A = (znear + zfar) / (znear - zfar);
@@ -255,7 +261,7 @@ Mat4 Quat::matrix() const
 
 Quat Quat::FromAngleAxis(FPType angle, FPType x, FPType y, FPType z)
 {
-    FPType halfa = angle * static_cast<float>(M_PI) / 360;
+    FPType halfa = angle * static_cast<float>(kPI) / 360;
     FPType sinha = sin(halfa);
     FPType cosha = cos(halfa);
     return {cosha, x * sinha, y * sinha, z * sinha};
@@ -299,10 +305,10 @@ Quat& Quat::operator/=(FPType s)
 
 bool Quat::operator==(const Quat &r) const
 {
-    return std::abs(w - r.w) < EPS
-        && std::abs(x - r.x) < EPS
-        && std::abs(y - r.y) < EPS
-        && std::abs(z - r.z) < EPS;
+    return std::abs(w - r.w) < kEPS
+        && std::abs(x - r.x) < kEPS
+        && std::abs(y - r.y) < kEPS
+        && std::abs(z - r.z) < kEPS;
 }
 
 } // namespace bmce

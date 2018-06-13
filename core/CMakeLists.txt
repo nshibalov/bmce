@@ -20,6 +20,7 @@ set(SOURCES
 set(HEADERS
   ${HEADER_DIR}/core/camera.h
   ${HEADER_DIR}/core/fileimport.h
+  ${HEADER_DIR}/core/constants.h
   ${HEADER_DIR}/core/mathlib.h
   ${HEADER_DIR}/core/mesh.h
   ${HEADER_DIR}/core/utils.h

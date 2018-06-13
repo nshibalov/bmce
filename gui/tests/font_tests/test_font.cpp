@@ -1,5 +1,3 @@
-#include "core/common.h"
-
 #include "core/log/consolelogger.h"
 #include "core/log/loggable.h"
 

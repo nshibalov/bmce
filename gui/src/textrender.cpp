@@ -1,7 +1,7 @@
 #include "gui/textrender.h"
 #include "gui/utf8.h"
 
-#include "core/mathlib.h"
+#include "core/constants.h"
 
 #include <algorithm>
 #include <iostream>
@@ -450,7 +450,7 @@ void TextRender::genGlyphs()
 
     FT_Matrix transform = {};
     {
-        static auto pi_over_180 = static_cast<FPType>(M_PI) / 180;
+        static auto pi_over_180 = static_cast<FPType>(kPI) / 180;
         FPType angle = -font_.rotation() * pi_over_180;
         transform.xx = static_cast<FT_Fixed>( cos(angle) * 0x10000L);
         transform.xy = static_cast<FT_Fixed>(-sin(angle) * 0x10000L);
