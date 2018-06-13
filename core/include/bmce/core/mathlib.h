@@ -2,7 +2,6 @@
 #define BMCE_CORE_MATHLIB_H
 
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include <cassert>
