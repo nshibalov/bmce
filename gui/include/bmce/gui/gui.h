@@ -16,13 +16,14 @@
 namespace bmce
 {
 
+
 class Gui : public Loggable
 {
 private:
     Rect<int> rect_;
     Pos2d<int> cursor_pos_;
 
-    Font font_;
+    Font font_{"Arial", 12};
     TextConstraints text_constraints_;
     TextRender text_render_;
 
@@ -30,18 +31,14 @@ private:
     Texture texture_;
 
 public:
-    explicit Gui(int width, int height) :
-        font_("Arial", 12)
+    explicit Gui()
     {
-        text_constraints_.setWidth(100);
+        init(0, 0);
+    }
 
-        text_render_.addFace(font_.name(), "data/fonts/arial.ttf");
-        text_render_.setFont(font_);
-        text_render_.setConstraints(text_constraints_);
-        text_render_.setText("VAвцфцфа: dawdwdвфввияяяЁ\nVersion");
-
-        camera_.setOrthographic(-1, 1, -1, 1);
-        resize(width, height);
+    explicit Gui(int width, int height)
+    {
+        init(width, height);
     }
 
     const Camera& camera() const
@@ -100,7 +97,23 @@ public:
 
         angle += 0.1;
     }
+
+private:
+    void init(int width, int height)
+    {
+        text_constraints_.setWidth(100);
+
+        text_render_.addFace(font_.name(), "data/fonts/arial.ttf");
+        text_render_.setFont(font_);
+        text_render_.setConstraints(text_constraints_);
+        text_render_.setText("VAвцфцфа: dawdwdвфввияяяЁ\nVersion");
+
+        camera_.setOrthographic(-1, 1, -1, 1);
+        resize(width, height);
+    }
+
 };
+
 
 } // namespace bmce
 
