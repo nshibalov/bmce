@@ -11,11 +11,11 @@ set(SOURCES
 
 set(LIBRARIES)
 
-# GLFW3
-message(STATUS "Checking GLFW3...")
-find_package(glfw3 REQUIRED)
-include_directories(${GLFW3_INCLUDE_DIR})
-list(APPEND LIBRARIES ${GLFW3_LIBRARY})
+# SDL2
+message(STATUS "Checking SDL2...")
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIR})
+list(APPEND LIBRARIES ${SDL2MAIN_LIBRARY} ${SDL2_LIBRARY})
 
 # core
 include_directories(${CORE_INCLUDE_DIRS})
@@ -27,7 +27,8 @@ list(APPEND LIBRARIES ${GUI_LIBRARIES})
 
 # make exe
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
+message("LIBS: ${LIBRARIES}")
+target_link_libraries(${PROJECT_NAME} ${SDL2} ${LIBRARIES})
 
 # copy data
 file(COPY ${CORE_DATA_DIRS} DESTINATION ${OUTPUT_DIRECTORY})

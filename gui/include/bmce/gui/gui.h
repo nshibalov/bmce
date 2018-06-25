@@ -30,7 +30,7 @@ private:
     Texture texture_;
 
 public:
-    explicit Gui(int width=0, int height=0) :
+    explicit Gui(int width, int height) :
         font_("Arial", 12)
     {
         text_constraints_.setWidth(100);

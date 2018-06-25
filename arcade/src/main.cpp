@@ -12,22 +12,27 @@
 
 #include <iostream>
 
-#include <GLFW/glfw3.h>
+#include <SDL.h>
+#include <SDL_opengl.h>
 
 
 class GuiGl : public bmce::Gui
 {
 private:
-    bmce::GLTexture gl_texture_;
-
     bmce::Mesh mesh_;
     bmce::GLMesh glMesh_;
+    bmce::GLTexture gl_texture_;
 
 public:
     GuiGl() :
-        mesh_(bmce::Mesh::FromRect(bmce::Rect<bmce::FPType>(-1, -1, 1, 1), -1)),
+        bmce::Gui(),
+        mesh_(
+            bmce::Mesh::FromRect(
+                bmce::Rect<bmce::FPType>(-1, -1, 1, 1),
+                -1)),
         glMesh_(mesh_)
     {
+        glMesh_;
     }
 
     void resize(int width, int height)
@@ -40,7 +45,7 @@ public:
     {
         update();
 
-        int texture_unit = 2;
+        int texture_unit = 1;
         gl_texture_.sub(texture(), 0, 0);
         gl_texture_.bind(texture_unit);
 
@@ -55,24 +60,30 @@ public:
 class Program
 {
 private:
-    int width_;
-    int height_;
+    SDL_Window *window_{nullptr};
+
+    int width_{0};
+    int height_{0};
+    bool quiting_{false};
+
+    float xvel_{0.0};
+    float yvel_{0.0};
 
     GuiGl gui_gl_;
 
-    bmce::Texture texture_;
+    bmce::Texture texture_{1, 1};
     bmce::GLTexture gl_texture_;
     bmce::Camera camera_;
     bmce::GLShader shader_;
 
-    std::vector<bmce::Mesh> meshes_;
-    std::vector<bmce::GLMesh> glMeshes_;
+    std::vector<bmce::Mesh> meshes_{};
+    std::vector<bmce::GLMesh> glMeshes_{};
 
 public:
-    Program(int width, int height) :
+    Program(SDL_Window *window, int width, int height) :
+        window_(window),
         width_(width),
-        height_(height),
-        texture_(1, 1)
+        height_(height)
     {
         resize(width, height);
 
@@ -100,6 +111,27 @@ public:
         }
     }
 
+    SDL_Window* window()
+    {
+        return window_;
+    }
+
+    bool quiting()
+    {
+        return quiting_;
+    }
+
+    float xvel() { return xvel_; }
+    void setXVel(float velocity) { xvel_ = velocity; }
+
+    float yvel() { return yvel_; }
+    void setYVel(float velocity) { yvel_ = velocity; }
+
+    void setQuiting(bool quiting)
+    {
+        quiting_ = quiting;
+    }
+
     void resize(int width, int height)
     {
         width_ = width;
@@ -119,13 +151,12 @@ public:
         *y = cy;
     }
 
-    void update(double dt, bool l, bool r, bool f, bool b)
+    void update(double dt)
     {
         float step = 10.0f * static_cast<float>(dt);
-        if (l) { camera_.right(-step); }
-        if (r) { camera_.right( step); }
-        if (f) { camera_.forward( step); }
-        if (b) { camera_.forward(-step); }
+
+        camera_.right(step * xvel_);
+        camera_.forward(step * yvel_);
     }
 
     void draw()
@@ -152,64 +183,142 @@ public:
     }
 };
 
-void ResizeCallback(GLFWwindow* window, int width, int height)
-{
-    auto program = static_cast<Program*>(glfwGetWindowUserPointer(window));
-    program->resize(width, height);
+
+int SDLCALL watch(void* userdata, SDL_Event* event) {
+    auto program = static_cast<Program*>(userdata);
+    if (program == nullptr)
+    {
+        return 1;
+    }
+
+    if (event->type == SDL_MOUSEMOTION)
+    {
+        double x = event->motion.x;
+        double y = event->motion.y;
+        program->cursorMoved(&x, &y);
+        SDL_WarpMouseInWindow(program->window(), x, y);
+    }
+    else if (event->type == SDL_KEYDOWN)
+    {
+        switch(event->key.keysym.sym)
+        {
+            case SDLK_LEFT:
+                program->setXVel(-1);
+                break;
+            case SDLK_RIGHT:
+                program->setXVel( 1);
+                break;
+            case SDLK_UP:
+                program->setYVel( 1);
+                break;
+            case SDLK_DOWN:
+                program->setYVel(-1);
+                break;
+            default:
+                break;
+        }
+    }
+    else if (event->type == SDL_KEYUP)
+    {
+        switch(event->key.keysym.sym)
+        {
+            case SDLK_LEFT:
+                if (program->xvel() < 0) { program->setXVel(0); }
+                break;
+            case SDLK_RIGHT:
+                if (program->xvel() > 0) { program->setXVel(0); }
+                break;
+            case SDLK_UP:
+                if (program->yvel() > 0) { program->setYVel(0); }
+                break;
+            case SDLK_DOWN:
+                if (program->yvel() < 0) { program->setYVel(0); }
+                break;
+            default:
+                break;
+        }
+    }
+    else if (
+        event->type == SDL_WINDOWEVENT_SIZE_CHANGED ||
+        event->type == SDL_WINDOWEVENT_RESIZED)
+    {
+        int width = event->window.data1;
+        int height = event->window.data2;
+        program->resize(width, height);
+    }
+    else if(event->type == SDL_QUIT)
+    {
+        program->setQuiting(true);
+    }
+
+    return 1;
 }
 
-void SetCursorPosCallback(GLFWwindow* window, double x, double y)
-{
-    auto program = static_cast<Program*>(glfwGetWindowUserPointer(window));
-    program->cursorMoved(&x, &y);
-    glfwSetCursorPos(window, x, y);
-}
 
 int main(int /*argc*/, char** /*argv*/)
 {
-    bmce::ConsoleLogger logger;
-    bmce::Loggable::setLogger(&logger);
-
     int width = 640;
     int height = 480;
 
-    glfwInit();
-    GLFWwindow* pWindow = glfwCreateWindow(
-        width, height, "Arcade", nullptr, nullptr);
-    glfwMakeContextCurrent(pWindow);
+    // SDL
+
+    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTS) != 0)
+    {
+        SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
+        return 1;
+    }
+
+    SDL_Window* window = SDL_CreateWindow(
+        "Arcade",
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        width,
+        height,
+        SDL_WINDOW_OPENGL);
+
+    SDL_GLContext gl_context = SDL_GL_CreateContext(window);
+
+    SDL_AddEventWatch(watch, nullptr);
+
     glewInit();
 
-    Program program(width, height);
+    bmce::ConsoleLogger logger;
+    bmce::Loggable::setLogger(&logger);
 
-    glfwSetWindowUserPointer(pWindow, &program);
-    glfwSetWindowSizeCallback(pWindow, ResizeCallback);
-    glfwSetCursorPosCallback(pWindow, SetCursorPosCallback);
+    Program program(window, width, height);
 
-    double dt = 0.01;
-    double accumulator = 0.0;
-    double current_time = glfwGetTime();
-    while (glfwWindowShouldClose(pWindow) == 0)
+    SDL_AddEventWatch(watch, &program);
+
+    int dt = 10; // ms
+    int accumulator = 0;
+    int current_time = SDL_GetTicks();
+
+    while (!program.quiting())
     {
-        glfwPollEvents();
+        SDL_Event event;
+        while(SDL_PollEvent(&event) != 0) {}
 
-        double new_time = glfwGetTime();
+        int new_time = SDL_GetTicks();
         accumulator += new_time - current_time;
         current_time = new_time;
 
         while (accumulator >= dt)
         {
-            program.update(
-                dt,
-                glfwGetKey(pWindow, GLFW_KEY_LEFT) == GLFW_PRESS,
-                glfwGetKey(pWindow, GLFW_KEY_RIGHT) == GLFW_PRESS,
-                glfwGetKey(pWindow, GLFW_KEY_UP) == GLFW_PRESS,
-                glfwGetKey(pWindow, GLFW_KEY_DOWN) == GLFW_PRESS);
+            program.update(dt / 1000.0);
             accumulator -= dt;
         }
 
+        SDL_GL_MakeCurrent(window, gl_context);
         program.draw();
-        glfwSwapBuffers(pWindow);
+        SDL_GL_SwapWindow(window);
     }
 
-    glfwTerminate();
+    bmce::Loggable::setLogger(nullptr);
+
+    SDL_DelEventWatch(watch, nullptr);
+    SDL_GL_DeleteContext(gl_context);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    return 0;
 }
