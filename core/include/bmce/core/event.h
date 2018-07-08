@@ -75,7 +75,7 @@ public:
         na_funcs_.push_back(detail::make_func(obj, func_ptr));
     }
 
-    void trigger(ARGS... args)
+    void trigger(ARGS&&... args)
     {
         for (const auto& func : funcs_)
         {
