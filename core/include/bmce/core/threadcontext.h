@@ -2,8 +2,6 @@
 #define BMCE_CORE_THREADCONTEXT_H
 
 
-#include <functional>
-#include <iostream>
 #include <mutex>
 #include <thread>
 
@@ -15,19 +13,64 @@ namespace bmce
 class ThreadContext
 {
 private:
-    std::thread::id main_thread_id_{std::this_thread::get_id()};
     std::thread thread_;
     std::mutex mutex_;
+
+    bool working_{false};
 
 public:
     ThreadContext() = default;
 
-    explicit ThreadContext(const std::thread::id& main_thread_id) :
-        main_thread_id_(main_thread_id)
+    virtual ~ThreadContext()
     {
+        wait();
     }
 
-    virtual ~ThreadContext()
+    ThreadContext(ThreadContext&& _copy) = delete;
+    ThreadContext& operator=(ThreadContext&& _copy) = delete;
+
+    ThreadContext(const ThreadContext& _copy) = delete;
+    ThreadContext& operator=(const ThreadContext& _copy) = delete;
+
+    std::thread::id threadId()
+    {
+        return thread_.get_id();
+    }
+
+    bool isRunning()
+    {
+        return thread_.joinable();
+    }
+
+    bool isWorking()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return working_;
+    }
+
+    bool isMain()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return working_ && !thread_.joinable();
+    }
+
+    void start()
+    {
+        innerLoop();
+    }
+
+    bool startInThread()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!thread_.joinable())
+        {
+            thread_ = std::thread(&ThreadContext::innerLoop, this);
+            return true;
+        }
+        return false;
+    }
+
+    void wait()
     {
         if (thread_.joinable())
         {
@@ -35,31 +78,27 @@ public:
         }
     }
 
-    std::thread::id threadId()
+    virtual void loop() = 0;
+
+private:
+    auto& thread()
     {
-        return thread_.joinable() ? thread_.get_id() : main_thread_id_;
+        return mutex_;
     }
 
-    bool isMain()
-    {
-        return !thread_.joinable();
-    }
-
-    bool isRunning()
+    void setWorking(bool working)
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        return thread_.joinable();
+        working_ = working;
     }
 
-    void start()
+    void innerLoop()
     {
-        if (!thread_.joinable())
-        {
-            thread_ = std::thread(&ThreadContext::loop, this);
-        }
+        setWorking(true);
+        loop();
+        setWorking(false);
     }
 
-    virtual void loop() = 0;
 };
 
 

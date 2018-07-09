@@ -1,5 +1,5 @@
-#ifndef BMCE_CORE_H
-#define BMCE_CORE_H
+#ifndef BMCE_CORE_EVENT_H
+#define BMCE_CORE_EVENT_H
 
 
 #include <functional>

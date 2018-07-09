@@ -1,5 +1,5 @@
-#ifndef BMCE_CORE_THREADCONTEXT_H
-#define BMCE_CORE_THREADCONTEXT_H
+#ifndef BMCE_CORE_MAINLOOP_H
+#define BMCE_CORE_MAINLOOP_H
 
 
 #include <functional>
@@ -21,7 +21,7 @@ public:
     template<typename ...ARGS>
     void addDeferredCall(void(*func)(ARGS...), ARGS&&... args)
     {
-        std::lock_guard lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);
 
         deferred_calls_.push([func, &args...] {
             func(std::forward<ARGS>(args)...);
@@ -31,7 +31,7 @@ public:
     template<typename T, typename ...ARGS>
     void addDeferredCall(void(T::*func)(ARGS...), T* obj, ARGS&&... args)
     {
-        std::lock_guard lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);
 
         deferred_calls_.push([func, obj, &args...] {
             (obj->*func)(std::forward<ARGS>(args)...);
