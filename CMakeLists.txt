@@ -23,7 +23,6 @@ enable_testing()
 # project
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    message(STATUS "GCC detected, adding compile flags")
     add_compile_options(
       -std=c++14
       -Wpedantic
