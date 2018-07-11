@@ -15,7 +15,6 @@
 #include FT_LCD_FILTER_H
 #include FT_STROKER_H
 
-#include "core/log/loggable.h"
 #include "core/pos2d.h"
 #include "core/rect.h"
 #include "core/texture.h"
@@ -29,7 +28,7 @@
 namespace bmce
 {
 
-class TextRender : public Loggable
+class TextRender
 {
 private:
     FT_Library library_ = nullptr;
@@ -59,7 +58,7 @@ public:
     TextRender();
     explicit TextRender(size_t dpi);
     TextRender(size_t hdpi, size_t vdpi);
-    ~TextRender() override;
+    virtual ~TextRender();
 
     size_t hDPI() const;
     size_t vDPI() const;

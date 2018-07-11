@@ -6,14 +6,13 @@
 #include <string>
 
 #include "core/gl/gl.h"
-#include "core/log/loggable.h"
 #include "core/mathlib.h"
 
 
 namespace bmce
 {
 
-class GLShader : public Loggable
+class GLShader
 {
 public:
     enum Attrib

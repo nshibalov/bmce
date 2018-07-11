@@ -1,4 +1,5 @@
 #include "core/gl/glshader.h"
+#include "core/log/log.h"
 #include "core/utils.h"
 
 #include <iostream>
@@ -175,7 +176,7 @@ bool GLShader::checkShader(GLuint shader_id) const
         std::string buffer;
         buffer.resize(length > 0 ? length - 1 : 0);
         glGetShaderInfoLog(shader_id, length, nullptr, &buffer[0]);
-        NW_ERROR("Shader (id=" << shader_id << "): " << buffer)
+        BMCE_ERROR("Shader (id=" << shader_id << "): " << buffer)
         return false;
     }
     return true;
@@ -193,7 +194,7 @@ bool GLShader::checkProgram(GLuint program_id) const
         std::string buffer;
         buffer.resize(length > 0 ? length - 1 : 0);
         glGetProgramInfoLog(program_id, length, nullptr, &buffer[0]);
-        NW_ERROR("Program (id=" << program_id << "): " << buffer)
+        BMCE_ERROR("Program (id=" << program_id << "): " << buffer)
         return false;
     }
     return true;

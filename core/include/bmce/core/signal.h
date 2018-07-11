@@ -1,5 +1,5 @@
-#ifndef BMCE_CORE_EVENT_H
-#define BMCE_CORE_EVENT_H
+#ifndef BMCE_CORE_SIGNAL_H
+#define BMCE_CORE_SIGNAL_H
 
 
 #include <functional>
@@ -42,7 +42,7 @@ namespace bmce
 
 
 template<typename ...ARGS>
-class Event
+class Signal
 {
 public:
     using Func = std::function<void(ARGS...)>;
@@ -92,7 +92,7 @@ public:
 
 
 template<>
-class Event<>
+class Signal<>
 {
 public:
     using Func = std::function<void()>;

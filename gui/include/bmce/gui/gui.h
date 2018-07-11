@@ -3,7 +3,6 @@
 
 
 #include "core/camera.h"
-#include "core/log/loggable.h"
 #include "core/pos2d.h"
 #include "core/rect.h"
 #include "core/texture.h"
@@ -17,7 +16,7 @@ namespace bmce
 {
 
 
-class Gui : public Loggable
+class Gui
 {
 private:
     Rect<int> rect_;

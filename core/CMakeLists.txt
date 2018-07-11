@@ -15,13 +15,14 @@ set(SOURCES
   ${SOURCE_DIR}/gl/glmesh.cpp
   ${SOURCE_DIR}/gl/glshader.cpp
   ${SOURCE_DIR}/gl/gltexture.cpp
-  ${SOURCE_DIR}/log/loggable.cpp)
+  ${SOURCE_DIR}/log/log.cpp)
 
 set(HEADERS
   ${HEADER_DIR}/core/fileimport.h
   ${HEADER_DIR}/core/constants.h
   ${HEADER_DIR}/core/camera.h
-  ${HEADER_DIR}/core/event.h
+  ${HEADER_DIR}/core/engine.h
+  ${HEADER_DIR}/core/signal.h
   ${HEADER_DIR}/core/mathlib.h
   ${HEADER_DIR}/core/mesh.h
   ${HEADER_DIR}/core/utils.h
@@ -33,7 +34,7 @@ set(HEADERS
   ${HEADER_DIR}/core/gl/glmesh.h
   ${HEADER_DIR}/core/gl/glshader.h
   ${HEADER_DIR}/core/gl/gltexture.h
-  ${HEADER_DIR}/core/log/loggable.h
+  ${HEADER_DIR}/core/log/log.h
   ${HEADER_DIR}/core/log/logger.h
   ${HEADER_DIR}/core/log/consolelogger.h)
 

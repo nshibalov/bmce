@@ -4,6 +4,8 @@
 
 #include <cstring>
 #include <iostream>
+#include <mutex>
+#include <thread>
 
 #include "core/log/logger.h"
 
@@ -13,6 +15,9 @@ namespace bmce
 
 class ConsoleLogger: public Logger
 {
+private:
+    std::mutex mutex_;
+
 public:
     void log(
         Level level,
@@ -21,6 +26,8 @@ public:
         const std::string& file,
         int line) override
     {
+        std::lock_guard<std::mutex> lock(mutex_);
+
         auto pos = file.rfind('/');
         if (pos == file.npos)
         {
@@ -30,6 +37,7 @@ public:
         std::string file_base = pos == file.npos ? file : file.substr(pos + 1);
 
         std::cout
+            << "THREAD(" << std::this_thread::get_id() << "):"
             << file_base << ":"
             << function << ":"
             << line << "  ";

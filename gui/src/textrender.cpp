@@ -2,6 +2,7 @@
 #include "gui/utf8.h"
 
 #include "core/constants.h"
+#include "core/log/log.h"
 
 #include <algorithm>
 #include <iostream>
@@ -329,7 +330,7 @@ void TextRender::render(Texture* texture)
         FT_Stroker stroker;
         if (FT_Stroker_New(library_, &stroker) != 0)
         {
-            NW_ERROR("FreeType2 stroker init failed.")
+            BMCE_ERROR("FreeType2 stroker init failed.")
         }
         else
         {
@@ -370,20 +371,20 @@ void TextRender::init()
     int error = FT_Init_FreeType(&library_);
     if (error)
     {
-        NW_ERROR("FreeType2 init failed.")
+        BMCE_ERROR("FreeType2 init failed.")
     }
 
     error = FTC_Manager_New(
         library_, 0, 0, 0, &FaceRequester, nullptr, &manager_);
     if (error)
     {
-        NW_ERROR("FreeType2 manager init failed.")
+        BMCE_ERROR("FreeType2 manager init failed.")
     }
 
     error = FTC_ImageCache_New(manager_, &image_cache_);
     if (error)
     {
-        NW_ERROR("FreeType2 cache init failed.")
+        BMCE_ERROR("FreeType2 cache init failed.")
     }
 }
 
@@ -412,7 +413,7 @@ void TextRender::genGlyphs()
         bmce::FaceId* face_id = faceId(font_.name());
         if (face_id == nullptr)
         {
-            NW_ERROR("Font '" << font_.name() << "' not registered.")
+            BMCE_ERROR("Font '" << font_.name() << "' not registered.")
             return;
         }
 
@@ -421,12 +422,12 @@ void TextRender::genGlyphs()
         {
             if (error == FT_Err_Unknown_File_Format)
             {
-                NW_ERROR(
+                BMCE_ERROR(
                     "FreeType2  font '" << font_.name() << "' unknown format.")
             }
             else
             {
-                NW_ERROR(
+                BMCE_ERROR(
                     "FreeType2  font '" << font_.name() << "' init failed.")
             }
 
@@ -471,7 +472,7 @@ void TextRender::genGlyphs()
             nullptr);
         if (error != 0)
         {
-            NW_WARNING(
+            BMCE_WARNING(
                 "FreeType2 get glyph failed for char '"
                 << text_[i] << "'")
             continue;

@@ -26,11 +26,11 @@ public:
         wait();
     }
 
-    ThreadContext(ThreadContext&& _copy) = delete;
-    ThreadContext& operator=(ThreadContext&& _copy) = delete;
+    ThreadContext(ThreadContext&& from) = delete;
+    ThreadContext& operator=(ThreadContext&& rhs) = delete;
 
-    ThreadContext(const ThreadContext& _copy) = delete;
-    ThreadContext& operator=(const ThreadContext& _copy) = delete;
+    ThreadContext(const ThreadContext& from) = delete;
+    ThreadContext& operator=(const ThreadContext& rhs) = delete;
 
     std::thread::id threadId()
     {
@@ -78,7 +78,7 @@ public:
         }
     }
 
-    virtual void loop() = 0;
+    virtual void run() = 0;
 
 private:
     auto& thread()
@@ -95,7 +95,7 @@ private:
     void innerLoop()
     {
         setWorking(true);
-        loop();
+        run();
         setWorking(false);
     }
 

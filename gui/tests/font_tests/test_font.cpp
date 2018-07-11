@@ -1,5 +1,5 @@
 #include "core/log/consolelogger.h"
-#include "core/log/loggable.h"
+#include "core/log/log.h"
 
 #include "core/texture.h"
 
@@ -115,7 +115,7 @@ TEST(font_tests, font_load_equal)
 int main(int argc, char* argv[])
 {
     bmce::ConsoleLogger logger;
-    bmce::Loggable::setLogger(&logger);
+    bmce::Log::setLogger(&logger);
 
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
