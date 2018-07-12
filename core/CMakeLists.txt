@@ -11,6 +11,8 @@ set(SOURCES
   ${SOURCE_DIR}/mathlib.cpp
   ${SOURCE_DIR}/mesh.cpp
   ${SOURCE_DIR}/utils.cpp
+  ${SOURCE_DIR}/signal.cpp
+  ${SOURCE_DIR}/engine.cpp
   ${SOURCE_DIR}/texture.cpp
   ${SOURCE_DIR}/gl/glmesh.cpp
   ${SOURCE_DIR}/gl/glshader.cpp
@@ -22,6 +24,7 @@ set(HEADERS
   ${HEADER_DIR}/core/constants.h
   ${HEADER_DIR}/core/camera.h
   ${HEADER_DIR}/core/engine.h
+  ${HEADER_DIR}/core/object.h
   ${HEADER_DIR}/core/signal.h
   ${HEADER_DIR}/core/mathlib.h
   ${HEADER_DIR}/core/mesh.h
@@ -41,6 +44,12 @@ set(HEADERS
 include_directories(${HEADER_DIR})
 
 set(LIBRARIES)
+
+# SDL2
+message(STATUS "Checking SDL2...")
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIR})
+list(APPEND LIBRARIES ${SDL2MAIN_LIBRARY} ${SDL2_LIBRARY})
 
 # OPENGL
 message(STATUS "Checking OpenGL...")

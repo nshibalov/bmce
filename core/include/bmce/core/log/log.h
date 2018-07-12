@@ -7,18 +7,18 @@
 #include "core/log/logger.h"
 
 
-#define BMCE_LOG(level, message)     \
-    {                                \
-        std::ostringstream stream;   \
-        stream << message;           \
-        stream.flush();              \
-                                     \
-        Log::log(                    \
-            level,                   \
-            stream.str(),            \
-            (const char*)(__func__), \
-            __FILE__,                \
-            __LINE__);               \
+#define BMCE_LOG(level, message)                         \
+    {                                                    \
+        std::ostringstream stream(std::ios_base::out);   \
+        stream << message;                               \
+        stream.flush();                                  \
+                                                         \
+        bmce::Log::log(                                  \
+            level,                                       \
+            stream.str(),                                \
+            (const char*)(__func__),                     \
+            __FILE__,                                    \
+            __LINE__);                                   \
     }
 
 #define BMCE_INFO(message) \

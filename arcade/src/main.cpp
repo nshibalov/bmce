@@ -10,12 +10,12 @@ using bmce::ConsoleLogger;
 
 int main(int /*argc*/, char** /*argv*/)
 {
-    bmce::ConsoleLogger logger;
+    static bmce::ConsoleLogger logger;
+
     bmce::Log::setLogger(&logger);
 
     Engine engine;
     engine.run();
 
-    bmce::Log::setLogger(nullptr);
     return 0;
 }

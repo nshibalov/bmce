@@ -11,12 +11,6 @@ set(SOURCES
 
 set(LIBRARIES)
 
-# SDL2
-message(STATUS "Checking SDL2...")
-find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIR})
-list(APPEND LIBRARIES ${SDL2MAIN_LIBRARY} ${SDL2_LIBRARY})
-
 # core
 include_directories(${CORE_INCLUDE_DIRS})
 list(APPEND LIBRARIES ${CORE_LIBRARIES})

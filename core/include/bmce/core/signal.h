@@ -3,88 +3,141 @@
 
 
 #include <functional>
+#include <map>
+#include <mutex>
 #include <vector>
 
 
 namespace bmce
 {
-namespace detail
+
+
+using SlotId = unsigned int;
+
+
+class Object;
+class SignalBase;
+
+
+class SlotContext
 {
+private:
+    SignalBase* signal_{nullptr};
+    SlotId slot_id_{0};
+
+public:
+    SlotContext(SignalBase* signal, SlotId id);
+    SignalBase* signal() const;
+    SlotId slotId() const;
+    void release();
+};
 
 
-template <class C, typename R, typename ...ARGS>
-std::function<R(ARGS...)> make_func(C* c, R (C::*m)(ARGS...))
+class SignalBase
 {
-    return [=](ARGS&&... args)
-    {
-        return (c->*m)(std::forward<ARGS>(args)...);
-    };
-}
+private:
+    std::mutex mutex_;
+    std::vector<Object*> listeners_;
+    SlotId next_slot_id_ {0};
 
+public:
+    SignalBase() = default;
+    virtual ~SignalBase();
 
-template <class C, typename R, typename ...ARGS>
-std::function<R(ARGS...)> make_func(
-    const C* c, R (C::*m)(ARGS...) const)
-{
-    return [=](ARGS&&... args)
-    {
-        return (c->*m)(std::forward<ARGS>(args)...);
-    };
-}
+    SignalBase(SignalBase&& from) = delete;
+    SignalBase& operator=(SignalBase&& rhs) = delete;
 
+    SignalBase(const SignalBase& from) = delete;
+    SignalBase& operator=(const SignalBase& rhs) = delete;
 
-} // namespace detail
-} // namespace bmce
+    void registerListener(Object* listener);
+    virtual void disconnect(SlotId id) = 0;
 
-
-namespace bmce
-{
+protected:
+    std::mutex& mutex();
+    void setSlotId(SlotId id);
+    SlotId nextSlotId();
+};
 
 
 template<typename ...ARGS>
-class Signal
+class Signal : public SignalBase
 {
 public:
-    using Func = std::function<void(ARGS...)>;
-    using NoArgFunc = std::function<void()>;
+    using Slot = std::function<void(ARGS...)>;
+    using NoArgSlot = std::function<void()>;
+
+    using Slots = std::map<SlotId, Slot>;
+    using NoArgSlots = std::map<SlotId, NoArgSlot>;
 
 private:
-    std::vector<Func> funcs_;
-    std::vector<NoArgFunc> na_funcs_;
+    Slots slots_;
+    NoArgSlots na_slots_;
 
 public:
-    void add_listener(const Func& func)
+    SlotContext connect(const Slot& slot)
     {
-        funcs_.push_back(func);
+        std::lock_guard<std::mutex> lock(mutex());
+
+        auto slot_id = nextSlotId();
+        slots_.insert(std::make_pair(slot_id, slot));
+        return {this, slot_id};
     }
 
-    void add_listener(const NoArgFunc& func)
+    SlotContext connect(const NoArgSlot& slot)
     {
-        na_funcs_.push_back(func);
+        std::lock_guard<std::mutex> lock(mutex());
+
+        auto slot_id = nextSlotId();
+        na_slots_.insert(std::make_pair(slot_id, slot));
+        return {this, slot_id};
     }
 
     template<typename T>
-    void add_listener(void(T::*func_ptr)(ARGS...), T* obj)
+    SlotContext connect(void(T::*func)(ARGS...), T* inst)
     {
-        funcs_.push_back(detail::make_func(obj, func_ptr));
-    }
-
-    template<typename T>
-    void add_listener(void(T::*func_ptr)(), T* obj)
-    {
-        na_funcs_.push_back(detail::make_func(obj, func_ptr));
-    }
-
-    void trigger(ARGS&&... args)
-    {
-        for (const auto& func : funcs_)
+        return connect([=](ARGS&&... args)
         {
-            func(std::forward<ARGS>(args)...);
+            (inst->*func)(std::forward<ARGS>(args)...);
+        });
+    }
+
+    template<typename T>
+    SlotContext connect(void(T::*func)(), T* inst)
+    {
+        return connect([func, inst]() { (inst->*func)(); });
+    }
+
+    void disconnect(SlotId id) override
+    {
+        std::lock_guard<std::mutex> lock(mutex());
+
+        slots_.erase(id);
+        na_slots_.erase(id);
+    }
+
+    void reset()
+    {
+        std::lock_guard<std::mutex> lock(mutex());
+
+        slots_.clear();
+        na_slots_.clear();
+
+        setSlotId(0);
+    }
+
+    void emit(ARGS... args)
+    {
+        std::lock_guard<std::mutex> lock(mutex());
+
+        for (auto& it : slots_)
+        {
+            it.second(std::forward<ARGS>(args)...);
         }
 
-        for (const auto& func : na_funcs_)
+        for (auto& it : na_slots_)
         {
-            func();
+            it.second();
         }
     }
 
@@ -92,29 +145,55 @@ public:
 
 
 template<>
-class Signal<>
+class Signal<> : public SignalBase
 {
 public:
-    using Func = std::function<void()>;
+    using Slot = std::function<void()>;
+    using Slots = std::map<SlotId, Slot>;
 
 private:
-    std::vector<Func> funcs_;
+    Slots slots_;
 
 public:
-    void add_listener(const Func& func)
+    SlotContext connect(const Slot& slot)
     {
-        funcs_.push_back(func);
+        std::lock_guard<std::mutex> lock(mutex());
+
+        auto slot_id = nextSlotId();
+        slots_.insert(std::make_pair(slot_id, slot));
+        return {this, slot_id};
     }
 
     template<typename T>
-    void add_listener(void(T::*func_ptr)(), T* obj)
+    SlotContext connect(void(T::*func)(), T* inst)
     {
-        funcs_.push_back(detail::make_func(obj, func_ptr));
+        return connect([func, inst]() { (inst->*func)(); });
     }
 
-    void trigger()
+    void disconnect(SlotId id) override
     {
-        for (const auto& func : funcs_) { func(); }
+        std::lock_guard<std::mutex> lock(mutex());
+
+        slots_.erase(id);
+    }
+
+    void reset()
+    {
+        std::lock_guard<std::mutex> lock(mutex());
+
+        slots_.clear();
+
+        setSlotId(0);
+    }
+
+    void emit()
+    {
+        std::lock_guard<std::mutex> lock(mutex());
+
+        for (auto& it : slots_)
+        {
+            it.second();
+        }
     }
 
 };
