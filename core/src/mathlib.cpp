@@ -1,8 +1,10 @@
 #include "core/mathlib.h"
-#include "core/constants.h"
+
 
 #include <cmath>
 #include <iostream>
+
+#include "core/constants.h"
 
 
 namespace

@@ -7,57 +7,14 @@
 #include <mutex>
 #include <vector>
 
+#include "core/log/log.h"
+#include "core/signalbase.h"
+#include "core/signaltarget.h"
+#include "core/slot.h"
+
 
 namespace bmce
 {
-
-
-using SlotId = unsigned int;
-
-
-class Object;
-class SignalBase;
-
-
-class SlotContext
-{
-private:
-    SignalBase* signal_{nullptr};
-    SlotId slot_id_{0};
-
-public:
-    SlotContext(SignalBase* signal, SlotId id);
-    SignalBase* signal() const;
-    SlotId slotId() const;
-    void release();
-};
-
-
-class SignalBase
-{
-private:
-    std::mutex mutex_;
-    std::vector<Object*> listeners_;
-    SlotId next_slot_id_ {0};
-
-public:
-    SignalBase() = default;
-    virtual ~SignalBase();
-
-    SignalBase(SignalBase&& from) = delete;
-    SignalBase& operator=(SignalBase&& rhs) = delete;
-
-    SignalBase(const SignalBase& from) = delete;
-    SignalBase& operator=(const SignalBase& rhs) = delete;
-
-    void registerListener(Object* listener);
-    virtual void disconnect(SlotId id) = 0;
-
-protected:
-    std::mutex& mutex();
-    void setSlotId(SlotId id);
-    SlotId nextSlotId();
-};
 
 
 template<typename ...ARGS>
@@ -75,37 +32,45 @@ private:
     NoArgSlots na_slots_;
 
 public:
-    SlotContext connect(const Slot& slot)
+    SlotId connect(const Slot& slot)
     {
         std::lock_guard<std::mutex> lock(mutex());
 
         auto slot_id = nextSlotId();
         slots_.insert(std::make_pair(slot_id, slot));
-        return {this, slot_id};
+        return slot_id;
     }
 
-    SlotContext connect(const NoArgSlot& slot)
+    SlotId connect(const NoArgSlot& slot)
     {
         std::lock_guard<std::mutex> lock(mutex());
 
         auto slot_id = nextSlotId();
         na_slots_.insert(std::make_pair(slot_id, slot));
-        return {this, slot_id};
+        return slot_id;
     }
 
     template<typename T>
-    SlotContext connect(void(T::*func)(ARGS...), T* inst)
+    SlotId connect(void(T::*slot)(ARGS...), T* inst)
     {
-        return connect([=](ARGS&&... args)
+        SlotId id = connect([=](ARGS&&... args)
         {
-            (inst->*func)(std::forward<ARGS>(args)...);
+            (inst->*slot)(std::forward<ARGS>(args)...);
         });
+
+        BMCE_INFO("connect")
+        addTargetSlot(inst, id);
+
+        return id;
     }
 
     template<typename T>
-    SlotContext connect(void(T::*func)(), T* inst)
+    SlotId connect(void(T::*slot)(), T* inst)
     {
-        return connect([func, inst]() { (inst->*func)(); });
+        SlotId id = connect([slot, inst]() { (inst->*slot)(); });
+        BMCE_INFO("connect")
+        addTargetSlot(inst, id);
+        return id;
     }
 
     void disconnect(SlotId id) override
@@ -130,17 +95,9 @@ public:
     {
         std::lock_guard<std::mutex> lock(mutex());
 
-        for (auto& it : slots_)
-        {
-            it.second(std::forward<ARGS>(args)...);
-        }
-
-        for (auto& it : na_slots_)
-        {
-            it.second();
-        }
+        for (auto& it : slots_) { it.second(std::forward<ARGS>(args)...); }
+        for (auto& it : na_slots_) { it.second(); }
     }
-
 };
 
 
@@ -155,19 +112,22 @@ private:
     Slots slots_;
 
 public:
-    SlotContext connect(const Slot& slot)
+    SlotId connect(const Slot& slot)
     {
         std::lock_guard<std::mutex> lock(mutex());
 
         auto slot_id = nextSlotId();
         slots_.insert(std::make_pair(slot_id, slot));
-        return {this, slot_id};
+        return slot_id;
     }
 
     template<typename T>
-    SlotContext connect(void(T::*func)(), T* inst)
+    SlotId connect(void(T::*slot)(), T* inst)
     {
-        return connect([func, inst]() { (inst->*func)(); });
+        SlotId id = connect([slot, inst]() { (inst->*slot)(); });
+        BMCE_INFO("connect")
+        addTargetSlot(inst, id);
+        return id;
     }
 
     void disconnect(SlotId id) override
@@ -190,10 +150,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(mutex());
 
-        for (auto& it : slots_)
-        {
-            it.second();
-        }
+        for (auto& it : slots_) { it.second(); }
     }
 
 };

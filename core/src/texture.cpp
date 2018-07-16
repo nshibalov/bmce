@@ -1,9 +1,11 @@
 #include "core/texture.h"
-#include "core/utils.h"
+
 
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+
+#include "core/utils.h"
 
 
 namespace bmce

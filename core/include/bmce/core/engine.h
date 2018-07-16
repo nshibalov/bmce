@@ -22,6 +22,11 @@ public:
     Signal<int, int> cursor_moved;
     Signal<int, int> window_resized;
 
+    enum
+    {
+        UPDATE_INTERVAL_MS = 10
+    };
+
 private:
     bool stopped_{false};
 
@@ -35,6 +40,9 @@ public:
     Engine& operator=(const Engine& rhs) = delete;
 
     ~Engine() override = default;
+
+    void test();
+    virtual bool update(int ms);
 
     void run() override;
     void stop();

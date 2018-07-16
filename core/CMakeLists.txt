@@ -11,7 +11,8 @@ set(SOURCES
   ${SOURCE_DIR}/mathlib.cpp
   ${SOURCE_DIR}/mesh.cpp
   ${SOURCE_DIR}/utils.cpp
-  ${SOURCE_DIR}/signal.cpp
+  ${SOURCE_DIR}/signalbase.cpp
+  ${SOURCE_DIR}/signaltarget.cpp
   ${SOURCE_DIR}/engine.cpp
   ${SOURCE_DIR}/texture.cpp
   ${SOURCE_DIR}/gl/glmesh.cpp
@@ -26,6 +27,9 @@ set(HEADERS
   ${HEADER_DIR}/core/engine.h
   ${HEADER_DIR}/core/object.h
   ${HEADER_DIR}/core/signal.h
+  ${HEADER_DIR}/core/signalbase.h
+  ${HEADER_DIR}/core/signaltarget.h
+  ${HEADER_DIR}/core/slot.h
   ${HEADER_DIR}/core/mathlib.h
   ${HEADER_DIR}/core/mesh.h
   ${HEADER_DIR}/core/utils.h

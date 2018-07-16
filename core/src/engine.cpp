@@ -1,5 +1,6 @@
 #include "core/engine.h"
 
+
 #include <SDL.h>
 
 #include "core/log/log.h"
@@ -55,35 +56,57 @@ namespace bmce
 
 Engine::Engine()
 {
-    slot(started.connect([](){BMCE_INFO("Engine started")}));
-    slot(stopped.connect([](){BMCE_INFO("Engine stopped")}));
-    slot(key_down.connect([](unsigned int key){
-        BMCE_INFO("Key down: " << key)}));
-    slot(key_up.connect([](unsigned int key){
-        BMCE_INFO("Key up: " << key)}));
-    slot(cursor_moved.connect([](int x, int y){
-        BMCE_INFO("Cursor moved: x=" << x << ", y=" << y)}));
-    slot(cursor_moved.connect([](int x, int y){
-        BMCE_INFO("Cursor moved: x=" << x << ", y=" << y)}));
+    started.connect([]() { BMCE_INFO("Engine started") });
+    stopped.connect([]() { BMCE_INFO("Engine stopped") });
+    key_down.connect(
+        [](unsigned int key)
+        { BMCE_INFO("Key down: " << key) });
+    key_up.connect(
+        [](unsigned int key)
+        { BMCE_INFO("Key up: " << key)});
+    cursor_moved.connect(
+        [](int x, int y)
+        { BMCE_INFO("Cursor moved: x=" << x << ", y=" << y)});
+    cursor_moved.connect(&Engine::test, this);
 }
+
+
+void Engine::test()
+{
+    BMCE_INFO("test")
+}
+
+
+bool Engine::update(int ms)
+{
+    if (ms == Engine::UPDATE_INTERVAL_MS)
+    {
+        BMCE_INFO("update (" << ms << "ms)")
+        return true;
+    }
+
+    BMCE_INFO("update leftover: " << ms << "ms")
+    return false;
+}
+
 
 void Engine::run()
 {
     started.emit();
 
-    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTS) != 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
     {
         BMCE_ERROR("Failed to initialize SDL: " << SDL_GetError())
         return;
     }
 
-    SDL_Window* window = SDL_CreateWindow(
-        "Engine",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        640,
-        480,
-        SDL_WINDOW_OPENGL);
+    // SDL_Window* window = SDL_CreateWindow(
+    //     "Engine",
+    //     SDL_WINDOWPOS_UNDEFINED,
+    //     SDL_WINDOWPOS_UNDEFINED,
+    //     640,
+    //     480,
+    //     SDL_WINDOW_OPENGL);
 
     SDL_AddEventWatch(watch, this);
 
@@ -92,19 +115,44 @@ void Engine::run()
     stopped.emit();
 }
 
+
 void Engine::stop()
 {
     stopped_ = true;
 }
 
+
 void Engine::loop()
 {
     stopped_ = false;
+
+    int accumulator = 0;
+    int current_time = SDL_GetTicks();
 
     while (!stopped_)
     {
         SDL_Event event;
         while(SDL_PollEvent(&event) != 0) {}
+
+        int new_time = SDL_GetTicks();
+        accumulator += new_time - current_time;
+        current_time = new_time;
+
+        while (accumulator >= Engine::UPDATE_INTERVAL_MS)
+        {
+            update(Engine::UPDATE_INTERVAL_MS);
+            accumulator -= Engine::UPDATE_INTERVAL_MS;
+
+            if (accumulator < Engine::UPDATE_INTERVAL_MS && accumulator != 0)
+            {
+                if (update(accumulator))
+                {
+                    accumulator = 0;
+                }
+            }
+        }
+
+
     }
 }
 
