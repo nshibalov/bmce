@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 
+#include "core/errors/commonerror.h"
 #include "core/log/log.h"
 
 
@@ -67,26 +68,20 @@ Engine::Engine()
     cursor_moved.connect(
         [](int x, int y)
         { BMCE_INFO("Cursor moved: x=" << x << ", y=" << y)});
-    cursor_moved.connect(&Engine::test, this);
+
+    init();
 }
 
 
-void Engine::test()
+Renderer* Engine::renderer()
 {
-    BMCE_INFO("test")
+    return renderer_.get();
 }
 
 
-bool Engine::update(int ms)
+void Engine::setRenderer(std::unique_ptr<Renderer> renderer)
 {
-    if (ms == Engine::UPDATE_INTERVAL_MS)
-    {
-        BMCE_INFO("update (" << ms << "ms)")
-        return true;
-    }
-
-    BMCE_INFO("update leftover: " << ms << "ms")
-    return false;
+    renderer_ = std::move(renderer);
 }
 
 
@@ -94,23 +89,8 @@ void Engine::run()
 {
     started.emit();
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
-    {
-        BMCE_ERROR("Failed to initialize SDL: " << SDL_GetError())
-        return;
-    }
-
-    // SDL_Window* window = SDL_CreateWindow(
-    //     "Engine",
-    //     SDL_WINDOWPOS_UNDEFINED,
-    //     SDL_WINDOWPOS_UNDEFINED,
-    //     640,
-    //     480,
-    //     SDL_WINDOW_OPENGL);
-
-    SDL_AddEventWatch(watch, this);
-
     loop();
+    destroy();
 
     stopped.emit();
 }
@@ -119,6 +99,29 @@ void Engine::run()
 void Engine::stop()
 {
     stopped_ = true;
+}
+
+
+void Engine::init()
+{
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
+    {
+        throw CommonError(
+            "Failed to initialize SDL: " + std::string(SDL_GetError()));
+    }
+
+    SDL_AddEventWatch(watch, this);
+}
+
+
+void Engine::destroy()
+{
+    renderer_.reset();
+
+    BMCE_INFO("Engine::destroy()")
+
+    SDL_DelEventWatch(watch, nullptr);
+    SDL_Quit();
 }
 
 
@@ -152,9 +155,28 @@ void Engine::loop()
             }
         }
 
-
+        if (renderer_)
+        {
+            Scene scene;
+            renderer_->render(scene);
+        }
     }
 }
+
+
+bool Engine::update(int ms)
+{
+    if (ms == Engine::UPDATE_INTERVAL_MS)
+    {
+        BMCE_INFO("update (" << ms << "ms)")
+        return true;
+    }
+
+    BMCE_INFO("update leftover: " << ms << "ms")
+    return false;
+}
+
+
 
 
 } // namespace bmce

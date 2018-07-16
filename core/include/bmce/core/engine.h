@@ -2,8 +2,11 @@
 #define BMCE_CORE_ENGINE_H
 
 
+#include <memory>
+
 #include "core/signal.h"
 #include "object.h"
+#include "renderer.h"
 #include "threadcontext.h"
 
 
@@ -28,6 +31,7 @@ public:
     };
 
 private:
+    std::unique_ptr<Renderer> renderer_;
     bool stopped_{false};
 
 public:
@@ -41,14 +45,18 @@ public:
 
     ~Engine() override = default;
 
-    void test();
-    virtual bool update(int ms);
+    Renderer* renderer();
+    void setRenderer(std::unique_ptr<Renderer> renderer);
 
     void run() override;
     void stop();
 
 private:
+    void init();
+    void destroy();
+
     void loop();
+    virtual bool update(int ms);
 
 };
 

@@ -15,6 +15,7 @@ set(SOURCES
   ${SOURCE_DIR}/signaltarget.cpp
   ${SOURCE_DIR}/engine.cpp
   ${SOURCE_DIR}/texture.cpp
+  ${SOURCE_DIR}/gl/glrenderer.cpp
   ${SOURCE_DIR}/gl/glmesh.cpp
   ${SOURCE_DIR}/gl/glshader.cpp
   ${SOURCE_DIR}/gl/gltexture.cpp
@@ -25,6 +26,7 @@ set(HEADERS
   ${HEADER_DIR}/core/constants.h
   ${HEADER_DIR}/core/camera.h
   ${HEADER_DIR}/core/engine.h
+  ${HEADER_DIR}/core/renderer.h
   ${HEADER_DIR}/core/object.h
   ${HEADER_DIR}/core/signal.h
   ${HEADER_DIR}/core/signalbase.h
@@ -38,6 +40,7 @@ set(HEADERS
   ${HEADER_DIR}/core/colortypes.h
   ${HEADER_DIR}/core/rect.h
   ${HEADER_DIR}/core/gl/gl.h
+  ${HEADER_DIR}/core/gl/glrenderer.h
   ${HEADER_DIR}/core/gl/glmesh.h
   ${HEADER_DIR}/core/gl/glshader.h
   ${HEADER_DIR}/core/gl/gltexture.h
