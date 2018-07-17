@@ -29,8 +29,8 @@ private:
     GLuint model_view_matrix_id_;
 
 private:
-    GLShader(const GLShader& copy);
-    GLShader& operator=(const GLShader& right);
+    GLShader(const GLShader& o);
+    GLShader& operator=(const GLShader& rhs);
 
 public:
     GLShader();

@@ -16,8 +16,8 @@ private:
     GLuint id_;
 
 private:
-    GLTexture(const GLTexture& copy);
-    GLTexture& operator=(const GLTexture& right);
+    GLTexture(const GLTexture& o);
+    GLTexture& operator=(const GLTexture& rhs);
 
 public:
     GLTexture();

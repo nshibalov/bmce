@@ -22,9 +22,9 @@ struct RGB8
     RGB8(UInt8 rr, UInt8 gg, UInt8 bb) :
         r(rr), g(gg), b(bb) {}
 
-    bool operator==(const RGB8& right) const
+    bool operator==(const RGB8& rhs) const
     {
-        return r == right.r && g == right.g && b == right.b;
+        return r == rhs.r && g == rhs.g && b == rhs.b;
     }
 };
 
@@ -41,20 +41,20 @@ struct RGBA8
     RGBA8(UInt8 rr, UInt8 gg, UInt8 bb, UInt8 aa) :
         r(rr), g(gg), b(bb), a(aa) {}
 
-    bool operator==(const RGBA8& right) const
+    bool operator==(const RGBA8& rhs) const
     {
-        return r == right.r
-            && g == right.g
-            && b == right.b
-            && a == right.a;
+        return r == rhs.r
+            && g == rhs.g
+            && b == rhs.b
+            && a == rhs.a;
     }
 
-    void blend(const RGBA8& right)
+    void blend(const RGBA8& rhs)
     {
-        r = (r * (255 - right.a) + right.r * right.a) / 255;
-        g = (g * (255 - right.a) + right.g * right.a) / 255;
-        b = (b * (255 - right.a) + right.b * right.a) / 255;
-        a = (a * (255 - right.a) + right.a * right.a) / 255;
+        r = (r * (255 - rhs.a) + rhs.r * rhs.a) / 255;
+        g = (g * (255 - rhs.a) + rhs.g * rhs.a) / 255;
+        b = (b * (255 - rhs.a) + rhs.b * rhs.a) / 255;
+        a = (a * (255 - rhs.a) + rhs.a * rhs.a) / 255;
     }
 };
 

@@ -41,13 +41,13 @@ public:
     explicit GLRenderer(std::string title);
     GLRenderer(std::string title, int width, int height);
 
-    GLRenderer(const GLRenderer& copy) = delete;
-    GLRenderer(GLRenderer&& from) noexcept;
+    GLRenderer(const GLRenderer& o) = delete;
+    GLRenderer(GLRenderer&& o) noexcept;
 
     ~GLRenderer() override;
 
-    GLRenderer& operator=(const GLRenderer& copy) = delete;
-    GLRenderer& operator=(GLRenderer&& from) noexcept;
+    GLRenderer& operator=(const GLRenderer& o) = delete;
+    GLRenderer& operator=(GLRenderer&& o) noexcept;
 
     void resize(int width, int height) override;
     void render(const Scene& scene) override;

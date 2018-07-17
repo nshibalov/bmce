@@ -41,11 +41,11 @@ GLRenderer::GLRenderer(std::string title, int width, int height) :
 }
 
 
-GLRenderer::GLRenderer(GLRenderer&& from) noexcept :
-    impl_(std::make_unique<detail::GLRendererImpl>(*from.impl_)),
-    title_(std::move(from.title_)),
-    width_(from.width_),
-    height_(from.height_)
+GLRenderer::GLRenderer(GLRenderer&& o) noexcept :
+    impl_(std::make_unique<detail::GLRendererImpl>(*o.impl_)),
+    title_(std::move(o.title_)),
+    width_(o.width_),
+    height_(o.height_)
 {
 }
 
@@ -57,12 +57,12 @@ GLRenderer::~GLRenderer()
 }
 
 
-GLRenderer& GLRenderer::operator=(GLRenderer&& from) noexcept
+GLRenderer& GLRenderer::operator=(GLRenderer&& o) noexcept
 {
-    impl_ = std::make_unique<detail::GLRendererImpl>(*from.impl_),
-    title_ = std::move(from.title_);
-    width_ = from.width_;
-    height_ = from.height_;
+    impl_ = std::make_unique<detail::GLRendererImpl>(*o.impl_),
+    title_ = std::move(o.title_);
+    width_ = o.width_;
+    height_ = o.height_;
 
     return *this;
 }

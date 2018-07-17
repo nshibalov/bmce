@@ -46,10 +46,10 @@ public:
     Log() = default;
     virtual ~Log() = default;
 
-    Log(Log&& from) = default;
+    Log(Log&& o) = default;
     Log& operator=(Log&& rhs) = default;
 
-    Log(const Log& from) = default;
+    Log(const Log& o) = default;
     Log& operator=(const Log& rhs) = default;
 
     static Logger* logger()

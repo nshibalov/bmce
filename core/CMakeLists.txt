@@ -8,45 +8,46 @@ set(HEADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/bmce")
 
 set(SOURCES
   ${SOURCE_DIR}/fileimport.cpp
+  ${SOURCE_DIR}/engine.cpp
   ${SOURCE_DIR}/mathlib.cpp
   ${SOURCE_DIR}/mesh.cpp
-  ${SOURCE_DIR}/utils.cpp
   ${SOURCE_DIR}/signalbase.cpp
   ${SOURCE_DIR}/signaltarget.cpp
-  ${SOURCE_DIR}/engine.cpp
   ${SOURCE_DIR}/texture.cpp
-  ${SOURCE_DIR}/gl/glrenderer.cpp
+  ${SOURCE_DIR}/utils.cpp
   ${SOURCE_DIR}/gl/glmesh.cpp
+  ${SOURCE_DIR}/gl/glrenderer.cpp
   ${SOURCE_DIR}/gl/glshader.cpp
   ${SOURCE_DIR}/gl/gltexture.cpp
   ${SOURCE_DIR}/log/log.cpp)
 
 set(HEADERS
-  ${HEADER_DIR}/core/fileimport.h
-  ${HEADER_DIR}/core/constants.h
   ${HEADER_DIR}/core/camera.h
+  ${HEADER_DIR}/core/colortypes.h
+  ${HEADER_DIR}/core/constants.h
   ${HEADER_DIR}/core/engine.h
-  ${HEADER_DIR}/core/renderer.h
+  ${HEADER_DIR}/core/fileimport.h
+  ${HEADER_DIR}/core/mathlib.h
+  ${HEADER_DIR}/core/mesh.h
   ${HEADER_DIR}/core/object.h
+  ${HEADER_DIR}/core/renderer.h
+  ${HEADER_DIR}/core/rect.h
+  ${HEADER_DIR}/core/scene.h
   ${HEADER_DIR}/core/signal.h
   ${HEADER_DIR}/core/signalbase.h
   ${HEADER_DIR}/core/signaltarget.h
   ${HEADER_DIR}/core/slot.h
-  ${HEADER_DIR}/core/mathlib.h
-  ${HEADER_DIR}/core/mesh.h
-  ${HEADER_DIR}/core/utils.h
   ${HEADER_DIR}/core/types.h
   ${HEADER_DIR}/core/texture.h
-  ${HEADER_DIR}/core/colortypes.h
-  ${HEADER_DIR}/core/rect.h
+  ${HEADER_DIR}/core/utils.h
   ${HEADER_DIR}/core/gl/gl.h
-  ${HEADER_DIR}/core/gl/glrenderer.h
   ${HEADER_DIR}/core/gl/glmesh.h
+  ${HEADER_DIR}/core/gl/glrenderer.h
   ${HEADER_DIR}/core/gl/glshader.h
   ${HEADER_DIR}/core/gl/gltexture.h
+  ${HEADER_DIR}/core/log/consolelogger.h
   ${HEADER_DIR}/core/log/log.h
-  ${HEADER_DIR}/core/log/logger.h
-  ${HEADER_DIR}/core/log/consolelogger.h)
+  ${HEADER_DIR}/core/log/logger.h)
 
 include_directories(${HEADER_DIR})
 

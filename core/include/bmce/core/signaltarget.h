@@ -21,10 +21,10 @@ public:
     SignalTarget() = default;
     virtual ~SignalTarget();
 
-    SignalTarget(SignalTarget&& from) = default;
+    SignalTarget(SignalTarget&& o) = default;
     SignalTarget& operator=(SignalTarget&& rhs) = default;
 
-    SignalTarget(const SignalTarget& from) = default;
+    SignalTarget(const SignalTarget& o) = default;
     SignalTarget& operator=(const SignalTarget& rhs) = default;
 
     void addSignal(SignalBase* signal);

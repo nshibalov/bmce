@@ -37,10 +37,10 @@ private:
 public:
     Engine();
 
-    Engine(Engine&& from) = delete;
+    Engine(Engine&& o) = delete;
     Engine& operator=(Engine&& rhs) = delete;
 
-    Engine(const Engine& from) = delete;
+    Engine(const Engine& o) = delete;
     Engine& operator=(const Engine& rhs) = delete;
 
     ~Engine() override = default;

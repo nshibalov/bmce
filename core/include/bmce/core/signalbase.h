@@ -27,10 +27,10 @@ public:
     SignalBase() = default;
     virtual ~SignalBase();
 
-    SignalBase(SignalBase&& from) = delete;
+    SignalBase(SignalBase&& o) = delete;
     SignalBase& operator=(SignalBase&& rhs) = delete;
 
-    SignalBase(const SignalBase& from) = delete;
+    SignalBase(const SignalBase& o) = delete;
     SignalBase& operator=(const SignalBase& rhs) = delete;
 
     virtual void disconnect(SlotId id) = 0;

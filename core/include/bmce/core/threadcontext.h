@@ -26,10 +26,10 @@ public:
         wait();
     }
 
-    ThreadContext(ThreadContext&& from) = delete;
+    ThreadContext(ThreadContext&& o) = delete;
     ThreadContext& operator=(ThreadContext&& rhs) = delete;
 
-    ThreadContext(const ThreadContext& from) = delete;
+    ThreadContext(const ThreadContext& o) = delete;
     ThreadContext& operator=(const ThreadContext& rhs) = delete;
 
     std::thread::id threadId()

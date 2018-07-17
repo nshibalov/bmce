@@ -5,20 +5,19 @@
 namespace bmce
 {
 
-class Scene;
-
 
 class Scene
 {
 public:
     Scene() = default;
-    Scene(Scene&& from) = default;
-    Scene(const Scene& copy) = default;
+    Scene(Scene&& o) = default;
+    Scene(const Scene& o) = default;
     virtual ~Scene() = default;
 
-    Scene& operator=(Scene&& from) = default;
-    Scene& operator=(const Scene& copy) = default;
+    Scene& operator=(Scene&& o) = default;
+    Scene& operator=(const Scene& o) = default;
 };
+
 
 }  // namespace bmce
 
