@@ -22,12 +22,6 @@ SignalBase::~SignalBase()
 }
 
 
-std::mutex& SignalBase::mutex()
-{
-    return mutex_;
-}
-
-
 SlotId SignalBase::nextSlotId()
 {
     return next_slot_id_++;
@@ -58,6 +52,10 @@ void SignalBase::addTargetSlot(SignalTarget* target, SlotId id)
     }
 
     target->addSignal(this);
+}
+
+void SignalBase::addTargetSlot(void* target, SlotId id)
+{
 }
 
 void SignalBase::removeTargetSlot(SignalTarget* target, SlotId id)

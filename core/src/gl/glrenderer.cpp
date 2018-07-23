@@ -85,6 +85,7 @@ void GLRenderer::render(const Scene& scene)
 
 void GLRenderer::init(int width, int height)
 {
+    BMCE_INFO("GLRenderer::init")
     impl_->window = SDL_CreateWindow(
         "Arcade",
         SDL_WINDOWPOS_UNDEFINED,
@@ -103,6 +104,7 @@ void GLRenderer::init(int width, int height)
 
 void GLRenderer::destroy()
 {
+    BMCE_INFO("GLRenderer::destroy")
     SDL_GL_DeleteContext(impl_->context);
     SDL_DestroyWindow(impl_->window);
 }

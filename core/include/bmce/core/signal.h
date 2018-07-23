@@ -34,7 +34,7 @@ private:
 public:
     SlotId connect(const Slot& slot)
     {
-        std::lock_guard<std::mutex> lock(mutex());
+        std::lock_guard<std::mutex> lock(mutex_);
 
         auto slot_id = nextSlotId();
         slots_.insert(std::make_pair(slot_id, slot));
@@ -43,7 +43,7 @@ public:
 
     SlotId connect(const NoArgSlot& slot)
     {
-        std::lock_guard<std::mutex> lock(mutex());
+        std::lock_guard<std::mutex> lock(mutex_);
 
         auto slot_id = nextSlotId();
         na_slots_.insert(std::make_pair(slot_id, slot));
@@ -75,7 +75,7 @@ public:
 
     void disconnect(SlotId id) override
     {
-        std::lock_guard<std::mutex> lock(mutex());
+        std::lock_guard<std::mutex> lock(mutex_);
 
         slots_.erase(id);
         na_slots_.erase(id);
@@ -83,7 +83,7 @@ public:
 
     void reset()
     {
-        std::lock_guard<std::mutex> lock(mutex());
+        std::lock_guard<std::mutex> lock(mutex_);
 
         slots_.clear();
         na_slots_.clear();
@@ -91,9 +91,9 @@ public:
         setSlotId(0);
     }
 
-    void emit(ARGS... args)
+    void emit(ARGS... args) const
     {
-        std::lock_guard<std::mutex> lock(mutex());
+        std::lock_guard<std::mutex> lock(mutex_);
 
         for (auto& it : slots_) { it.second(std::forward<ARGS>(args)...); }
         for (auto& it : na_slots_) { it.second(); }
@@ -114,7 +114,7 @@ private:
 public:
     SlotId connect(const Slot& slot)
     {
-        std::lock_guard<std::mutex> lock(mutex());
+        std::lock_guard<std::mutex> lock(mutex_);
 
         auto slot_id = nextSlotId();
         slots_.insert(std::make_pair(slot_id, slot));
@@ -132,23 +132,23 @@ public:
 
     void disconnect(SlotId id) override
     {
-        std::lock_guard<std::mutex> lock(mutex());
+        std::lock_guard<std::mutex> lock(mutex_);
 
         slots_.erase(id);
     }
 
     void reset()
     {
-        std::lock_guard<std::mutex> lock(mutex());
+        std::lock_guard<std::mutex> lock(mutex_);
 
         slots_.clear();
 
         setSlotId(0);
     }
 
-    void emit()
+    void emit() const
     {
-        std::lock_guard<std::mutex> lock(mutex());
+        std::lock_guard<std::mutex> lock(mutex_);
 
         for (auto& it : slots_) { it.second(); }
     }

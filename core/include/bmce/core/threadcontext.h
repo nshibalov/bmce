@@ -14,7 +14,7 @@ class ThreadContext
 {
 private:
     std::thread thread_;
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
 
     bool working_{false};
 
@@ -37,18 +37,18 @@ public:
         return thread_.get_id();
     }
 
-    bool isRunning()
+    bool isRunning() const
     {
         return thread_.joinable();
     }
 
-    bool isWorking()
+    bool isWorking() const
     {
         std::lock_guard<std::mutex> lock(mutex_);
         return working_;
     }
 
-    bool isMain()
+    bool isMain() const
     {
         std::lock_guard<std::mutex> lock(mutex_);
         return working_ && !thread_.joinable();
@@ -81,11 +81,6 @@ public:
     virtual void run() = 0;
 
 private:
-    auto& thread()
-    {
-        return mutex_;
-    }
-
     void setWorking(bool working)
     {
         std::lock_guard<std::mutex> lock(mutex_);

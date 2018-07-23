@@ -18,7 +18,6 @@ class SignalTarget;
 class SignalBase
 {
 private:
-    std::mutex mutex_;
     SlotId next_slot_id_ {0};
 
     std::map<SignalTarget*, SlotIdList> target_slots_;
@@ -38,10 +37,13 @@ public:
     void targetDestroyed(SignalTarget* target);
 
 protected:
-    std::mutex& mutex();
+    mutable std::mutex mutex_;
+
+protected:
     void setSlotId(SlotId id);
     SlotId nextSlotId();
     void addTargetSlot(SignalTarget*, SlotId id);
+    void addTargetSlot(void*, SlotId id);
     void removeTargetSlot(SignalTarget*, SlotId id);
     void removeTargetSlots(SignalTarget*);
 };

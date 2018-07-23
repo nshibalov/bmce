@@ -2,12 +2,17 @@
 #define BMCE_CORE_ENGINE_H
 
 
+#include <map>
 #include <memory>
+#include <vector>
 
+#include "core/keyboard.h"
+#include "core/mouse.h"
+#include "core/object.h"
+#include "core/renderer.h"
+#include "core/scene.h"
 #include "core/signal.h"
-#include "object.h"
-#include "renderer.h"
-#include "threadcontext.h"
+#include "core/threadcontext.h"
 
 
 namespace bmce
@@ -16,6 +21,10 @@ namespace bmce
 
 class Engine : public ThreadContext, public Object
 {
+public:
+    using ScenePriorities = std::map<Scene*, int>;
+    using SceneList = std::vector<Scene*>;
+
 public:
     Signal<> started;
     Signal<> stopped;
@@ -31,8 +40,14 @@ public:
     };
 
 private:
-    std::unique_ptr<Renderer> renderer_;
+    Keyboard keyboard_;
+    Mouse mouse_;
+
+    Renderer* renderer_;
     bool stopped_{false};
+
+    ScenePriorities scenes_;
+    SceneList sorted_scenes_;
 
 public:
     Engine();
@@ -45,19 +60,31 @@ public:
 
     ~Engine() override = default;
 
+    Keyboard& keyboard();
+    const Keyboard& keyboard() const;
+
+    Mouse& mouse();
+    const Mouse& mouse() const;
+
     Renderer* renderer();
-    void setRenderer(std::unique_ptr<Renderer> renderer);
+    void setRenderer(Renderer* renderer);
 
     void run() override;
     void stop();
 
+    void addScene(Scene* scene);
+    void addScene(Scene* scene, int priority);
+    void removeScene(Scene* scene);
+
 private:
     void init();
     void destroy();
-
     void loop();
-    virtual bool update(int ms);
 
+    void updateSortedScenes();
+    void update();
+    void partialUpdate(int ms);
+    void render();
 };
 
 

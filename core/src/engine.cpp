@@ -21,15 +21,17 @@ int SDLCALL watch(void* userdata, SDL_Event* event)
 
     if (event->type == SDL_MOUSEMOTION)
     {
-        engine->cursor_moved.emit(event->motion.x, event->motion.y);
+        engine->mouse().cursor_moved.emit(event->motion.x, event->motion.y);
     }
-    else if (event->type == SDL_KEYDOWN)
+    else if (event->type == SDL_KEYDOWN && event->key.repeat == 0)
     {
-        engine->key_down.emit(event->key.keysym.sym);
+        engine->keyboard().key_down.emit(
+            bmce::sdl_keycode_to_vk(event->key.keysym.sym));
     }
     else if (event->type == SDL_KEYUP)
     {
-        engine->key_up.emit(event->key.keysym.sym);
+        engine->keyboard().key_up.emit(
+            bmce::sdl_keycode_to_vk(event->key.keysym.sym));
     }
     else if (
         event->type == SDL_WINDOWEVENT_SIZE_CHANGED ||
@@ -59,13 +61,13 @@ Engine::Engine()
 {
     started.connect([]() { BMCE_INFO("Engine started") });
     stopped.connect([]() { BMCE_INFO("Engine stopped") });
-    key_down.connect(
+    keyboard().key_down.connect(
         [](unsigned int key)
         { BMCE_INFO("Key down: " << key) });
-    key_up.connect(
+    keyboard().key_up.connect(
         [](unsigned int key)
         { BMCE_INFO("Key up: " << key)});
-    cursor_moved.connect(
+    mouse().cursor_moved.connect(
         [](int x, int y)
         { BMCE_INFO("Cursor moved: x=" << x << ", y=" << y)});
 
@@ -73,15 +75,39 @@ Engine::Engine()
 }
 
 
-Renderer* Engine::renderer()
+Keyboard& Engine::keyboard()
 {
-    return renderer_.get();
+    return keyboard_;
 }
 
 
-void Engine::setRenderer(std::unique_ptr<Renderer> renderer)
+const Keyboard& Engine::keyboard() const
 {
-    renderer_ = std::move(renderer);
+    return keyboard_;
+}
+
+
+Mouse& Engine::mouse()
+{
+    return mouse_;
+}
+
+
+const Mouse& Engine::mouse() const
+{
+    return mouse_;
+}
+
+
+Renderer* Engine::renderer()
+{
+    return renderer_;
+}
+
+
+void Engine::setRenderer(Renderer* renderer)
+{
+    renderer_ = renderer;
 }
 
 
@@ -102,6 +128,25 @@ void Engine::stop()
 }
 
 
+void Engine::addScene(Scene* scene)
+{
+    addScene(scene, 0);
+}
+
+
+void Engine::addScene(Scene* scene, int priority)
+{
+    scenes_.insert(std::make_pair(scene, priority));
+    updateSortedScenes();
+}
+
+void Engine::removeScene(Scene* scene)
+{
+    scenes_.erase(scene);
+    updateSortedScenes();
+}
+
+
 void Engine::init()
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
@@ -116,8 +161,6 @@ void Engine::init()
 
 void Engine::destroy()
 {
-    renderer_.reset();
-
     BMCE_INFO("Engine::destroy()")
 
     SDL_DelEventWatch(watch, nullptr);
@@ -143,40 +186,85 @@ void Engine::loop()
 
         while (accumulator >= Engine::UPDATE_INTERVAL_MS)
         {
-            update(Engine::UPDATE_INTERVAL_MS);
+            update();
+
             accumulator -= Engine::UPDATE_INTERVAL_MS;
-
-            if (accumulator < Engine::UPDATE_INTERVAL_MS && accumulator != 0)
-            {
-                if (update(accumulator))
-                {
-                    accumulator = 0;
-                }
-            }
         }
 
-        if (renderer_)
-        {
-            Scene scene;
-            renderer_->render(scene);
-        }
+        partialUpdate(accumulator);
+        render();
     }
 }
 
 
-bool Engine::update(int ms)
+void Engine::updateSortedScenes()
 {
-    if (ms == Engine::UPDATE_INTERVAL_MS)
+    sorted_scenes_.clear();
+    sorted_scenes_.reserve(scenes_.size());
+
+    for (auto& pair : scenes_)
     {
-        BMCE_INFO("update (" << ms << "ms)")
-        return true;
+        sorted_scenes_.push_back(pair.first);
     }
 
-    BMCE_INFO("update leftover: " << ms << "ms")
-    return false;
+    std::sort(sorted_scenes_.begin(), sorted_scenes_.end(),
+        [this](const auto lhs, const auto rhs)
+        {
+            return scenes_[lhs] < scenes_[rhs];
+        });
 }
 
 
+void Engine::update()
+{
+    for (auto scene : sorted_scenes_)
+    {
+        if (!scene->isActive())
+        {
+            continue;
+        }
+
+        scene->update(Engine::UPDATE_INTERVAL_MS);
+    }
+}
+
+
+void Engine::partialUpdate(int ms)
+{
+    if (ms <= 0)
+    {
+        return;
+    }
+
+    for (auto scene : sorted_scenes_)
+    {
+        if (!scene->isActive())
+        {
+            continue;
+        }
+
+        scene->partialUpdate(Engine::UPDATE_INTERVAL_MS, ms);
+    }
+}
+
+
+void Engine::render()
+{
+    if (renderer_ == nullptr)
+    {
+        return;
+    }
+
+    for (auto scene : sorted_scenes_)
+    {
+        if (!scene->isActive())
+        {
+            continue;
+        }
+
+        renderer_->render(*scene);
+    }
+}
 
 
 } // namespace bmce
