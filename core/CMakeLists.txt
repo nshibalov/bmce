@@ -9,6 +9,7 @@ set(HEADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/bmce")
 set(SOURCES
   ${SOURCE_DIR}/fileimport.cpp
   ${SOURCE_DIR}/engine.cpp
+  ${SOURCE_DIR}/keyboard.cpp
   ${SOURCE_DIR}/mathlib.cpp
   ${SOURCE_DIR}/mesh.cpp
   ${SOURCE_DIR}/signalbase.cpp

@@ -2,6 +2,7 @@
 #define BMCE_CORE_GL_GLRENDERER_H
 
 
+#include <memory>
 #include <string>
 
 #include "core/renderer.h"

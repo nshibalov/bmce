@@ -1,7 +1,7 @@
 #include "core/engine.h"
 
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #include "core/errors/commonerror.h"
 #include "core/log/log.h"
