@@ -267,7 +267,7 @@ unsigned int sdl_keycode_to_vk(unsigned int key_code)
     };
 
     return bmce::Keyboard::VK_UNKNOWN;
-};
+}
 
 
 } // namespace bmce
