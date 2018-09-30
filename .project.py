@@ -16,6 +16,7 @@ FLAGS = [
     "-I./include/bmce",
     "-I./gui/include/bmce",
     "-I./core/include/bmce",
+    '-isystem/usr/include/SDL2',
     '-isystem/usr/include/freetype2',
     '-isystem./third_party/googletest/googlemock/include',
     '-isystem./third_party/googletest/googletest/include',
