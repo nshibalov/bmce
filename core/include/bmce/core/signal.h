@@ -53,10 +53,11 @@ public:
     template<typename T>
     SlotId connect(void(T::*slot)(ARGS...), T* inst)
     {
-        SlotId id = connect([=](ARGS&&... args)
-        {
-            (inst->*slot)(std::forward<ARGS>(args)...);
-        });
+        SlotId id = connect(
+            [=](ARGS&&... args)
+            {
+                (inst->*slot)(std::forward<ARGS>(args)...);
+            });
 
         BMCE_INFO("connect")
         addTargetSlot(inst, id);

@@ -20,11 +20,11 @@ public:
     Renderer& operator=(Renderer&& o) = default;
     Renderer& operator=(const Renderer& o) = default;
 
-    virtual void resize(int width, int height)
+    virtual void resize(int /*width*/, int /*height*/)
     {
     }
 
-    virtual void render(const Scene& scene)
+    virtual void render(const Scene& /*scene*/)
     {
     }
 };

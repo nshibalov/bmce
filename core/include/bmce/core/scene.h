@@ -44,11 +44,11 @@ public:
         setActive(false);
     }
 
-    virtual void update(int ms)
+    virtual void update(int /*ms*/)
     {
     }
 
-    virtual void partialUpdate(int full_frame_ms, int ms)
+    virtual void partialUpdate(int /*full_frame_ms*/, int /*ms*/)
     {
     }
 };

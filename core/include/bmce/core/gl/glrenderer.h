@@ -18,17 +18,6 @@ struct GLRendererImpl;
 } // namespace detail
 
 
-class Test
-{
-private:
-    std::string str_;
-public:
-    explicit Test(std::string str);
-};
-
-
-
-
 class GLRenderer : public Renderer
 {
 private:
